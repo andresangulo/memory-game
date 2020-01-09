@@ -1,78 +1,94 @@
-import EventEmitter from 'events';
-
 import $api from '../api/Api';
+import {observable} from "mobx";
 
-class GameService extends EventEmitter {
+class GameService {
 
     get TOTAL_ROWS () {
-        return 4;
+        return $api.TOTAL_ROWS;
     }
 
     get TOTAL_COLUMNS () {
-        return 6;
+        return $api.TOTAL_COLUMNS;
     }
 
-    _loggedIn = false;
-    _username = false;
+    @observable
+    loaded = false;
+
+    @observable
+    loggedIn = false;
+
+    @observable
+    username = false;
+
+    @observable
+    cards = [];
+
+    @observable
+    moves = [];
+
+    @observable
+    choices = [];
+
+    @observable
+    users = [];
+
+    @observable
+    currentUserIndex = false;
 
     constructor () {
-        super();
-        this.setMaxListeners(100);
+        this.initialize();
+    }
+
+    async initialize () {
+        await $api.restart();
+        await this.updateState();
+        this.loaded = true;
+    }
+
+    async updateState () {
+        const state = await $api.getState();
+        this.cards = state.cards;
+        this.users = state.users;
+        this.currentUserIndex = state.currentUserIndex;
+        this.moves = state.moves;
+        this.choices = state.choices;
     }
 
     async login (username) {
         if (this.loggedIn) {
-            console.log(`Already logged in as ${this._username}`);
+            console.log(`Already logged in as ${this.username}`);
             return;
         }
 
-        this.emit('logging-in');
-        this._username = username;
+        this.username = username;
         try {
             console.log('Logging in...');
             await $api.login(username);
-            this._loggedIn = true;
-            this.emit('logged-in');
+            this.loggedIn = true;
             console.log(`Logged in as ${username}`);
-            return true;
         } catch (error) {
-            this._loggedIn = false;
-            this.emit('logging-in-error');
+            this.loggedIn = false;
             console.error('Unable to log in');
-            return false;
         }
     }
 
     async logout () {
-        if (!this._loggedIn) {
+        if (!this.loggedIn) {
             console.log('Not logged in');
             return;
         }
 
-        this.emit('logging-out');
-        this._username = false;
-        this._loggedIn = false;
-        this.emit('logged-out');
+        this.username = false;
+        this.loggedIn = false;
     }
 
-    async getUserList () {
-        return $api.getUserList();
+    getCard (column, row) {
+        return this.cards[(column * this.TOTAL_COLUMNS) + row];
     }
 
-    async getMoveList () {
-        return [];
-    }
-
-    get username () {
-        return this._username;
-    }
-
-    get loggedIn () {
-        return this._loggedIn;
-    }
-
-    isCardActive (column, row) {
-        return false;
+    async choose (column, row) {
+        await $api.choose(column, row);
+        await this.updateState();
     }
 }
 

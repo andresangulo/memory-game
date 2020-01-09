@@ -4,6 +4,7 @@ import React from 'react';
 
 import Card from "./Card";
 import $game from '../service/GameService';
+import ArrayUtils from "../util/ArrayUtils";
 
 export default class GameArea extends React.Component {
 
@@ -14,27 +15,18 @@ export default class GameArea extends React.Component {
         this.renderCard = this.renderCard.bind(this);
     }
 
-    createEmptyArray (length) {
-        const array = [];
-        for (let index = 0; index < length; index++) {
-            array.push(index);
-        }
-
-        return array;
-    }
-
     createRenderCardFunction (row) {
-        return (_, column) => this.renderCard(row, column);
+        return (_, column) => this.renderCard(column, row);
     }
 
-    renderCard (row, column) {
-        return <Card key={'' + column} row={row} column={column} />;
+    renderCard (column, row) {
+        return <Card key={`${column},${row}`} row={column} column={row} />;
     }
 
     renderRow (_, row) {
         return (
-            <div key={'' + row} className={'row'}>
-                {this.createEmptyArray($game.TOTAL_COLUMNS).map(this.createRenderCardFunction(row))}
+            <div key={row.toString()} className={'row'}>
+                {ArrayUtils.createEmptyArray($game.TOTAL_COLUMNS).map(this.createRenderCardFunction(row))}
             </div>
         );
     }
@@ -42,7 +34,7 @@ export default class GameArea extends React.Component {
     render () {
         return (
             <div id="game-area">
-                {this.createEmptyArray($game.TOTAL_ROWS).map(this.renderRow)}
+                {ArrayUtils.createEmptyArray($game.TOTAL_ROWS).map(this.renderRow)}
             </div>
         );
     }

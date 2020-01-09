@@ -9,40 +9,19 @@ import SessionInformation from "./SessionInformation";
 
 import $game from '../service/GameService';
 import UserList from "./UserList";
+import {observer} from "mobx-react";
 
+@observer
 export default class Game extends React.Component {
 
-    state = {
-        loggedIn: false
-    };
-
-    constructor (props) {
-        super(props);
-
-        this.setLoggedIn = this.setLoggedIn.bind(this);
-        this.setLoggedOut = this.setLoggedOut.bind(this);
-    }
-
-    componentDidMount () {
-        $game.on('logged-in', this.setLoggedIn);
-        $game.on('logged-out', this.setLoggedOut);
-    }
-
-    componentWillUnmount () {
-        $game.removeListener('logged-in', this.setLoggedIn);
-        $game.removeListener('logged-out', this.setLoggedOut);
-    }
-
-    setLoggedIn () {
-        this.setState({loggedIn: true});
-    }
-
-    setLoggedOut () {
-        this.setState({loggedIn: false});
-    }
-
     render () {
-        if (!this.state.loggedIn) {
+        if ($game.loading) {
+            return (
+                <span>
+                    <i className={'fa fa-spin fa-refresh'} /> Loading, please wait...
+                </span>
+            );
+        } else if (!$game.loggedIn) {
             return <LoginPanel />;
         }
 

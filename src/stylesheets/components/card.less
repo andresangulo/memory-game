@@ -1,3 +1,5 @@
+@import '../colors';
+
 .card {
   display: inline-block;;
   margin-left: 20px;
@@ -7,23 +9,32 @@
   background-color: lighten(saddlebrown, 5%);
   border: 1px solid darken(saddlebrown, 5%);
   text-align: center;
+  cursor: pointer;
+
+  &.loading {
+    background-color: lighten(saddlebrown, 65%);
+    cursor: wait;
+    i {
+      color: @blue-theme;
+    }
+  }
 
   &.active {
+    cursor: default;
     background-color: lighten(saddlebrown, 95%);
     border: 1px solid lighten(saddlebrown, 5%);
   }
 
   i {
     font-size: 40px;
-    text-shadow: #aaaaaa 0 0 4px;
+    text-shadow: black 0 0 4px;
     margin-top: 41px;
   }
 
-  &:not(.active) {
+  &:not(.active):not(.loading) {
     i {
       color: white;
       opacity: 0.1;
-      text-shadow: black 0 0 4px;
     }
   }
 }

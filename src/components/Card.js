@@ -3,10 +3,11 @@ import '../stylesheets/components/card.less';
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import symbols from '../symbols.json';
-
 import $game from '../service/GameService';
+import {observer} from "mobx-react";
+import {reaction, toJS} from "mobx";
 
+@observer
 export default class Card extends React.PureComponent {
 
     static propTypes = {
@@ -15,49 +16,59 @@ export default class Card extends React.PureComponent {
     };
 
     state = {
-        active: true
+        active: false,
+        card: {}
     };
+
+    removeCardSynchroniser;
 
     constructor (props) {
         super(props);
 
-        this.setActive = this.setActive.bind(this);
+        this.choose = this.choose.bind(this);
+    }
+
+    static getDerivedStateFromProps (nextProps) {
+        return {
+            card: $game.getCard(nextProps.column, nextProps.row)
+        };
     }
 
     componentDidMount () {
-        $game.on('active', this.requestActiveState);
+        this.removeCardSynchroniser = reaction(() => JSON.stringify($game.cards), () => this.setState({}));
     }
 
     componentWillUnmount () {
-        $game.removeListener('active', this.requestActiveState);
+        this.removeCardSynchroniser();
     }
 
-    requestActiveState () {
-        this.setActive($game.isCardActive(this.props.column, this.props.row));
-    }
+    choose () {
+        if (this.state.card.active) {
+            return;
+        }
 
-    setActive (active) {
-        this.setState({active});
+        $game.choose(this.props.column, this.props.row);
     }
 
     render () {
+        const style = {};
         let className = 'card';
-        if (this.state.active) {
+        if (this.state.card.active) {
             className += ' active';
         }
 
         let symbol;
-        if (!this.state.active) {
+        if (!this.state.card.active) {
             symbol = 'cloud';
         } else {
-            symbol = symbols[(this.props.row * ($game.TOTAL_ROWS + 1)) + this.props.column + (this.props.row ? 1 : 0)] || 'refresh';
-//            symbol = this.props.symbol
+            symbol = this.state.card.symbol;
+            style.color = this.state.card.color;
         }
 
         return (
-            <div className={className}>
-                <i className={`fa fa-${symbol}`} />
-            </div>
+            <a className={className} onClick={this.choose}>
+                <i className={`fa fa-${symbol}`} style={style} />
+            </a>
         );
     }
 }
