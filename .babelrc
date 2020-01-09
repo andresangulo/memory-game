@@ -1,0 +1,7 @@
+{
+  "presets" : ["es2015", "react"],
+  "plugins": [
+    ["babel-plugin-transform-class-properties", {"loose": true}],
+    ["babel-plugin-transform-private-properties", {"loose": true}]
+  ]
+}

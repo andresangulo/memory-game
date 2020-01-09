@@ -1,0 +1,29 @@
+.card {
+  display: inline-block;;
+  margin-left: 20px;
+  margin-top: 20px;
+  width: 74px;
+  height: 123px;
+  background-color: lighten(saddlebrown, 5%);
+  border: 1px solid darken(saddlebrown, 5%);
+  text-align: center;
+
+  &.active {
+    background-color: lighten(saddlebrown, 95%);
+    border: 1px solid lighten(saddlebrown, 5%);
+  }
+
+  i {
+    font-size: 40px;
+    text-shadow: #aaaaaa 0 0 4px;
+    margin-top: 41px;
+  }
+
+  &:not(.active) {
+    i {
+      color: white;
+      opacity: 0.1;
+      text-shadow: black 0 0 4px;
+    }
+  }
+}

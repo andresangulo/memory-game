@@ -1,0 +1,57 @@
+@import '~font-awesome/css/font-awesome.css';
+@import './colors';
+
+html {
+
+  body {
+    font-family: 'Roboto', sans-serif;
+    padding: 20px;
+    margin: 0;
+    background: #eaeaea;
+    input, textarea, button {
+      font-family: 'Roboto', sans-serif;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      margin: 0;
+      color: #222222;
+    }
+
+    a {
+      text-decoration: none;
+      cursor: pointer;
+      &, &:visited {
+        color: @blue-theme;
+        font-weight: 300;
+      }
+      &:hover, &:visited:hover {
+        color: lighten(@blue-theme, 5%);
+      }
+    }
+
+    input {
+      &[type="text"] {
+        padding: 5px 10px;
+        font-size: 14px;
+      }
+    }
+
+    button {
+      background-color: @blue-theme;
+      padding: 5px 10px;
+      font-size: 14px;
+      border: none;
+      color: white;
+      cursor: pointer;
+      &.success {
+        background-color: @green-theme;
+      }
+      &.danger {
+        background-color: @red-theme;
+      }
+      &:disabled {
+        background-color: #dddddd;
+      }
+    }
+  }
+}
