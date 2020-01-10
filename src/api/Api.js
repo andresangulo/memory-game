@@ -1,7 +1,4 @@
-import EventEmitter from 'events';
-
-// Currently mocked
-class Api extends EventEmitter {
+class Api {
 
     cards = [];
     users = [];
