@@ -1,9 +1,44 @@
 #move-history {
   display: block;
   width: 150px;
-  height: 418px;
+  height: 501px;
   background-color: white;
   border: 1px solid #d1d1d1;
   padding: 10px;
   margin-top: 20px;
+
+  .move {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 5px;
+    border: 1px solid #d1d1d1;
+    background-color: #f1f1f1;
+    padding: 5px;
+    cursor: pointer;
+    .user {
+      margin-top: 3px;
+      display: inline-block;
+    }
+
+    .cards {
+      display: inline-block;
+      .card {
+        display: inline-block;
+        height: 23px;
+        box-shadow: #aaaaaa 1px 1px 3px;
+
+        &:not(:first-child) {
+          margin-left: 5px;
+        }
+
+        i {
+          margin-top: 5px;
+          font-size: 13px;
+          color: white;
+          text-shadow: black 0 0 2px;
+        }
+      }
+    }
+  }
 }

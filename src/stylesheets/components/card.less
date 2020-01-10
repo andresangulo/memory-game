@@ -1,40 +1,67 @@
 @import '../colors';
 
-.card {
-  display: inline-block;;
-  margin-left: 20px;
-  margin-top: 20px;
-  width: 74px;
-  height: 123px;
-  background-color: lighten(saddlebrown, 5%);
-  border: 1px solid darken(saddlebrown, 5%);
-  text-align: center;
-  cursor: pointer;
+#game-area {
+  .card {
+    position: relative;
+    display: inline-block;;
+    margin-left: 20px;
+    margin-top: 20px;
+    width: 110px;
+    height: 160px;
+    text-align: center;
 
-  &.loading {
-    background-color: lighten(saddlebrown, 65%);
-    cursor: wait;
-    i {
-      color: @blue-theme;
+    .background,
+    .foreground {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      border: 1px solid lighten(saddlebrown, 5%);
     }
-  }
 
-  &.active {
-    cursor: default;
-    background-color: lighten(saddlebrown, 95%);
-    border: 1px solid lighten(saddlebrown, 5%);
-  }
+    .background {
+      background-color: lighten(saddlebrown, 5%);
+      cursor: pointer;
 
-  i {
-    font-size: 40px;
-    text-shadow: black 0 0 4px;
-    margin-top: 41px;
-  }
+      i {
+        color: white;
+        opacity: 0.1;
+      }
+    }
 
-  &:not(.active):not(.loading) {
+    .foreground {
+      opacity: 0;
+      pointer-events: none;
+      cursor: default;
+      background-color: lighten(saddlebrown, 95%);
+    }
+
     i {
-      color: white;
-      opacity: 0.1;
+      font-size: 48px;
+      text-shadow: black 0 0 4px;
+      margin-top: 55px;
+    }
+
+    &.active,
+    &.resolved {
+      .foreground {
+        transition: opacity 400ms;
+        opacity: 1;
+        pointer-events: all;
+      }
+    }
+
+    &.resolved {
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background-color: rgba(255, 255, 255, 0.9);
+      }
     }
   }
 }

@@ -3,7 +3,7 @@
 #user-list {
   display: block;
   width: 150px;
-  height: 120px;
+  height: 187px;
   background-color: white;
   border: 1px solid #d1d1d1;
   padding: 10px;
@@ -13,16 +13,45 @@
     margin-top: 5px;
     display: block;
     text-align: left;
+    height: 157px;
+    overflow-y: auto;
+    overflow-x: hidden;
     .user {
       display: block;
-      .fa-user {
-        color: @blue-theme;
+      border: 1px solid #d1d1d1;
+      background-color: #f1f1f1;
+      padding: 5px;
+      color: black;
+      &:not(:first-child) {
+        margin-top: 5px;
+      }
+
+      &:not(.active) {
+        .fa-user {
+          opacity: 0.4;
+          color: @blue-theme;
+        }
       }
 
       &.active {
         .fa-user {
           color: @green-theme;
         }
+      }
+
+      .name {
+        display: block;
+      }
+
+      .matches {
+        background-color: white;
+        border: 1px solid #d1d1d1;
+        padding: 5px;
+        font-size: 12px;
+        display: block;
+        margin-left: 15px;
+        text-shadow: black 0 0 2px;
+        white-space: normal;
       }
     }
   }

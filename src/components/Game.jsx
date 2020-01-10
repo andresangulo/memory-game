@@ -10,6 +10,7 @@ import SessionInformation from "./SessionInformation";
 import $game from '../service/GameService';
 import UserList from "./UserList";
 import {observer} from "mobx-react";
+import Controls from "./Controls";
 
 @observer
 export default class Game extends React.Component {
@@ -40,6 +41,7 @@ export default class Game extends React.Component {
                         <MoveHistory />
                     </div>
                 </div>
+                <Controls />
             </div>
         );
     }

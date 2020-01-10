@@ -4,10 +4,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import $game from '../service/GameService';
-import {observer} from "mobx-react";
-import {reaction, toJS} from "mobx";
 
-@observer
 export default class Card extends React.PureComponent {
 
     static propTypes = {
@@ -16,11 +13,8 @@ export default class Card extends React.PureComponent {
     };
 
     state = {
-        active: false,
         card: {}
     };
-
-    removeCardSynchroniser;
 
     constructor (props) {
         super(props);
@@ -28,47 +22,31 @@ export default class Card extends React.PureComponent {
         this.choose = this.choose.bind(this);
     }
 
-    static getDerivedStateFromProps (nextProps) {
-        return {
-            card: $game.getCard(nextProps.column, nextProps.row)
-        };
-    }
-
-    componentDidMount () {
-        this.removeCardSynchroniser = reaction(() => JSON.stringify($game.cards), () => this.setState({}));
-    }
-
-    componentWillUnmount () {
-        this.removeCardSynchroniser();
-    }
-
     choose () {
-        if (this.state.card.active) {
+        if (this.props.card.active) {
             return;
         }
 
-        $game.choose(this.props.column, this.props.row);
+        $game.choose(this.props.row, this.props.column);
     }
 
     render () {
-        const style = {};
         let className = 'card';
-        if (this.state.card.active) {
+        if (typeof this.props.card.resolvedBy === 'string') {
+            className += ' resolved'
+        } else if (this.props.card.active) {
             className += ' active';
         }
 
-        let symbol;
-        if (!this.state.card.active) {
-            symbol = 'cloud';
-        } else {
-            symbol = this.state.card.symbol;
-            style.color = this.state.card.color;
-        }
-
         return (
-            <a className={className} onClick={this.choose}>
-                <i className={`fa fa-${symbol}`} style={style} />
-            </a>
+            <div className={className}>
+                <a className={'background'} onClick={this.choose}>
+                    <i className={`fa fa-cloud`} />
+                </a>
+                <a className={'foreground'}>
+                    <i className={`fa fa-${this.props.card.symbol}`} style={{color: this.props.card.color}} />
+                </a>
+            </div>
         );
     }
 }

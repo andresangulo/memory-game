@@ -1,7 +1,10 @@
 import $api from '../api/Api';
-import {observable} from "mobx";
+import {computed, observable} from "mobx";
 
 class GameService {
+
+    static POLL_INTERVAL = 50;
+    static STATE_DESCRIBING_FIELDS = ['cards', 'users', 'currentUsername', 'moves', 'choices'];
 
     get TOTAL_ROWS () {
         return $api.TOTAL_ROWS;
@@ -33,7 +36,7 @@ class GameService {
     users = [];
 
     @observable
-    currentUserIndex = false;
+    currentUsername = false;
 
     constructor () {
         this.initialize();
@@ -41,54 +44,77 @@ class GameService {
 
     async initialize () {
         await $api.restart();
-        await this.updateState();
+        this.pollState();
         this.loaded = true;
+    }
+
+    async pollState () {
+        await this.updateState();
+        setTimeout(() => this.pollState(), GameService.POLL_INTERVAL);
     }
 
     async updateState () {
         const state = await $api.getState();
-        this.cards = state.cards;
-        this.users = state.users;
-        this.currentUserIndex = state.currentUserIndex;
-        this.moves = state.moves;
-        this.choices = state.choices;
+        // We check the state before assigning because assigning makes mobx emit an effect which forces re-rendering across the board, even without
+        // anything having changed
+        GameService.STATE_DESCRIBING_FIELDS.forEach(field => {
+            // this[field] is an observable and therefore has all the mobx metadata. Comparing JSON strings strips the metadata
+            if (JSON.stringify(this[field]) !== JSON.stringify(state[field])) {
+                this[field] = state[field];
+            }
+        });
+
+        if (this.loggedIn && this.users.indexOf(this.username) < 0) {
+            this.logout();
+        }
     }
 
     async login (username) {
         if (this.loggedIn) {
-            console.log(`Already logged in as ${this.username}`);
             return;
         }
 
         this.username = username;
         try {
-            console.log('Logging in...');
             await $api.login(username);
             this.loggedIn = true;
-            console.log(`Logged in as ${username}`);
         } catch (error) {
             this.loggedIn = false;
-            console.error('Unable to log in');
         }
     }
 
     async logout () {
         if (!this.loggedIn) {
-            console.log('Not logged in');
             return;
         }
 
+        await $api.logout(this.username);
         this.username = false;
         this.loggedIn = false;
     }
 
-    getCard (column, row) {
-        return this.cards[(column * this.TOTAL_COLUMNS) + row];
+    async bootUser (username) {
+        $api.logout(username);
     }
 
-    async choose (column, row) {
-        await $api.choose(column, row);
-        await this.updateState();
+    async choose (row, column) {
+        return $api.choose(row, column);
+    }
+
+    async revert (group) {
+        return $api.revert(group);
+    }
+
+    async restart () {
+        return $api.restart();
+    }
+
+    async end () {
+        return $api.end();
+    }
+
+    getCard (row, column) {
+        return this.cards[(row * this.TOTAL_COLUMNS) + column];
     }
 }
 

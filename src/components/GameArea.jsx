@@ -5,8 +5,14 @@ import React from 'react';
 import Card from "./Card";
 import $game from '../service/GameService';
 import ArrayUtils from "../util/ArrayUtils";
+import {observer} from "mobx-react";
+import {reaction} from "mobx";
+
+@observer
 
 export default class GameArea extends React.Component {
+
+    removeCardSynchroniser;
 
     constructor (props) {
         super(props);
@@ -15,12 +21,21 @@ export default class GameArea extends React.Component {
         this.renderCard = this.renderCard.bind(this);
     }
 
-    createRenderCardFunction (row) {
-        return (_, column) => this.renderCard(column, row);
+    componentDidMount () {
+        this.removeCardSynchroniser = reaction(() => JSON.stringify($game.cards), () => this.setState({}));
     }
 
-    renderCard (column, row) {
-        return <Card key={`${column},${row}`} row={column} column={row} />;
+    componentWillUnmount () {
+        this.removeCardSynchroniser();
+    }
+
+
+    createRenderCardFunction (row) {
+        return (_, column) => this.renderCard(row, column);
+    }
+
+    renderCard (row, column) {
+        return <Card key={`${column},${row}`} row={row} column={column} card={$game.getCard(row, column)} />;
     }
 
     renderRow (_, row) {
