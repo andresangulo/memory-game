@@ -1,29 +1,21 @@
 import EventEmitter from 'events';
 
-import {find} from 'lodash';
-
-import allCards from '../symbols.json';
-import allColors from '../colors.json';
-import ArrayUtils from "../util/ArrayUtils";
-
 // Currently mocked
 class Api extends EventEmitter {
 
-    static PAUSE_FOR_NEXT_USER = 400;
-
-    waitingToAdvance = false;
-    currentUsername = false;
-    choices = [];
     cards = [];
     users = [];
-    matches = [];
 
     get TOTAL_CHOICES () {
         return 2;
     }
 
+    get TOTAL_CARDS () {
+        return this.TOTAL_ROWS * this.TOTAL_COLUMNS;
+    }
+
     get TOTAL_MATCHES () {
-        return (this.TOTAL_ROWS * this.TOTAL_COLUMNS) / 2;
+        return this.TOTAL_CARDS / this.TOTAL_CHOICES;
     }
 
     get TOTAL_COLUMNS () {
@@ -34,156 +26,57 @@ class Api extends EventEmitter {
         return 4;
     }
 
-    async send (endpoint, data) {
+    async send (method, endpoint, data = {}) {
+        const configuration = {
+            method,
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            mode: 'cors',
+            cache: 'no-cache'
+        };
 
+        if (method === 'POST' || method === 'PUT') {
+            configuration.body = JSON.stringify(data);
+        }
+
+        const request = new Request(`http://localhost:3060/${endpoint}`, configuration);
+
+        try {
+            const response = await fetch(request);
+            return response.json();
+        } catch (error) {
+            console.warn(error);
+        }
     }
 
     async restart () {
-        const cards = [];
-        for (let index = 0; index < this.TOTAL_MATCHES; index++) {
-            let cardIndex;
-            do {
-                cardIndex = Math.floor(Math.random() * allCards.length);
-            } while (find(cards, {symbol: allCards[cardIndex]}));
-
-            const group = cards.length / this.TOTAL_CHOICES;
-            for (let choice = 0; choice < this.TOTAL_CHOICES; choice++) {
-                cards.push({
-                    symbol: allCards[cardIndex],
-                    group
-                });
-            }
-        }
-
-        const shuffledColors = ArrayUtils.shuffle(allColors);
-        this.cards = ArrayUtils.shuffle(ArrayUtils.shuffle(cards.map(card => Object.assign(card, {color: shuffledColors[card.group]}))));
-        this.currentUsername = false;
-        this.choices = [];
-        this.matches = [];
-    }
-
-    getCardIndex (row, column) {
-        return (row * this.TOTAL_COLUMNS) + column;
+        return this.send('GET', 'state/restart/');
     }
 
     async login (username) {
-        this.users.push(username);
-        if (!this.currentUsername) {
-            this.currentUsername = username;
-        }
+        return this.send('POST', 'user/', {username});
     }
 
     async logout (username) {
-        const index = this.users.indexOf(username);
-        if (index < 0) {
-            return;
-        }
-
-        this.users.splice(index, 1);
-        if (this.users.length === 0) {
-            this.restart();
-            return;
-        }
-
-        this.cards.forEach(card => {
-            if (card.resolvedBy === username) {
-                delete card.resolvedBy;
-                const moveIndex = this.matches.indexOf(card.group);
-                if (moveIndex) {
-                    this.matches.splice(moveIndex, 1);
-                }
-            }
-        });
-
-        if (this.currentUsername === username) {
-            this.advanceToNextUser();
-        }
+        return this.send('DELETE', 'user/' + username);
     }
 
     async choose (row, column) {
-        if (this.waitingToAdvance) {
-            return false;
-        }
-
-        this.choices.push({row, column});
-        const index = this.getCardIndex(row, column);
-        this.cards[index].active = true;
-        if (this.choices.length >= this.TOTAL_CHOICES) {
-            if (!this.isMatch(this.choices)) {
-                this.waitingToAdvance = true;
-                setTimeout(() => this.advanceToNextUser(), Api.PAUSE_FOR_NEXT_USER);
-            } else {
-                this.choices.forEach(({row, column}) => {
-                    Object.assign(this.cards[this.getCardIndex(row, column)], {
-                        active: false,
-                        resolvedBy: this.currentUsername
-                    });
-                });
-
-                const card = this.cards[this.getCardIndex(this.choices[0].row, this.choices[0].column)];
-                this.matches.push(card.group);
-                this.choices = [];
-            }
-        }
-    }
-
-    async advanceToNextUser () {
-        let index = this.users.indexOf(this.currentUsername);
-        if (index < 0) {
-            index = 0;
-        } else {
-            index++;
-        }
-
-        if (index >= this.users.length) {
-            index = 0;
-        }
-
-        this.currentUsername = this.users[index];
-        this.choices = [];
-        this.waitingToAdvance = false;
-        this.cards.forEach(card => card.active = false);
+        return this.send('POST', 'card/', {row, column});
     }
 
     async getState () {
-        return {
-            currentUsername: this.currentUsername,
-            choices: this.choices,
-            cards: this.cards,
-            users: this.users,
-            matches: this.matches
-        }
+        return this.send('GET', 'state/');
     }
 
     async revert (group) {
-        const index = this.matches.indexOf(group);
-        if (index < 0) {
-            return;
-        }
-
-        this.matches.slice(index).forEach(group => {
-            this.cards.forEach(card => {
-                if (card.group === group) {
-                    delete card.resolvedBy;
-                }
-            });
-        });
-
-        this.matches.splice(index);
+        return this.send('DELETE', 'state/' + group);
     }
 
     async end () {
-        this.users = [];
-        await this.restart();
-    }
-
-    isMatch (choices) {
-        if (choices.length === 0) {
-            return false;
-        }
-
-        const referenceCard = this.cards[this.getCardIndex(choices[0].row, choices[0].column)];
-        return !choices.some(({row, column}) => this.cards[this.getCardIndex(row, column)].group !== referenceCard.group);
+        return this.send('DELETE', '');
     }
 }
 

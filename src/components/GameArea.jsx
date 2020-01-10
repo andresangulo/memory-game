@@ -48,8 +48,8 @@ export default class GameArea extends React.Component {
 
     render () {
         return (
-            <div id="game-area">
-                {ArrayUtils.createEmptyArray($game.TOTAL_ROWS).map(this.renderRow)}
+            <div id="game-area" className={$game.ownTurn ? 'own-turn' : ''}>
+                {$game.ready && ArrayUtils.createEmptyArray($game.TOTAL_ROWS).map(this.renderRow)}
             </div>
         );
     }

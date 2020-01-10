@@ -6,6 +6,10 @@ class GameService {
     static POLL_INTERVAL = 50;
     static STATE_DESCRIBING_FIELDS = ['cards', 'users', 'currentUsername', 'matches', 'choices'];
 
+    get TOTAL_CARDS () {
+        return $api.TOTAL_CARDS;
+    }
+
     get TOTAL_MATCHES () {
         return $api.TOTAL_MATCHES;
     }
@@ -42,12 +46,23 @@ class GameService {
     @observable
     currentUsername = false;
 
+    @computed
+    get ready () {
+        return this.cards.length === this.TOTAL_CARDS;
+    }
+
+    get ownTurn () {
+        return this.currentUsername === this.username;
+    }
+
     constructor () {
         this.initialize();
+        if (localStorage.username) {
+            this.login(localStorage.username);
+        }
     }
 
     async initialize () {
-        await $api.restart();
         this.pollState();
         this.loaded = true;
     }
@@ -81,6 +96,7 @@ class GameService {
         this.username = username;
         try {
             await $api.login(username);
+            localStorage.username = username;
             this.loggedIn = true;
         } catch (error) {
             this.loggedIn = false;
@@ -95,6 +111,7 @@ class GameService {
         await $api.logout(this.username);
         this.username = false;
         this.loggedIn = false;
+        delete localStorage.username;
     }
 
     async bootUser (username) {

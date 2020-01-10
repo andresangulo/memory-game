@@ -10,6 +10,11 @@
     height: 160px;
     text-align: center;
 
+    &:not(.own-turn) {
+      pointer-events: none;
+      cursor: wait;
+    }
+
     .background,
     .foreground {
       position: absolute;

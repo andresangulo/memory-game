@@ -18,10 +18,6 @@ export default class LoginPanel extends React.Component {
         this.login = this.login.bind(this);
     }
 
-    componentDidMount () {
-        /******/ this.setUsername('andres'); requestAnimationFrame(() => this.login());
-    }
-
     handleUserInputChange (event) {
         this.setUsername(event.target.value);
     }

@@ -4,7 +4,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import $game from '../service/GameService';
+import {observer} from "mobx-react";
 
+@observer
 export default class Card extends React.PureComponent {
 
     static propTypes = {
@@ -23,7 +25,7 @@ export default class Card extends React.PureComponent {
     }
 
     choose () {
-        if (this.props.card.active) {
+        if (!$game.ownTurn || this.props.card.active) {
             return;
         }
 
@@ -32,6 +34,10 @@ export default class Card extends React.PureComponent {
 
     render () {
         let className = 'card';
+        if ($game.ownTurn) {
+            className += ' own-turn';
+        }
+
         if (typeof this.props.card.resolvedBy === 'string') {
             className += ' resolved'
         } else if (this.props.card.active) {
