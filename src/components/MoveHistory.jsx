@@ -4,7 +4,6 @@ import React from 'react';
 import $game from "../service/GameService";
 import {observer} from "mobx-react";
 import {find} from 'lodash';
-import ArrayUtils from "../util/ArrayUtils";
 
 @observer
 export default class MoveHistory extends React.Component {
@@ -30,7 +29,7 @@ export default class MoveHistory extends React.Component {
         }
 
         return (
-            <span key={group.toString()} className={'move'} onClick={this.createPromptToRevertFunction(group)}>
+            <span key={group.toString()} className={'move'} onClick={this.createPromptToRevertFunction(group)} title={'Revert to before this match'}>
                 <span className={'user'}>{card.resolvedBy}</span>
                 <div className={'cards'}>
                     <span className={'card'} style={{backgroundColor: card.color}}>

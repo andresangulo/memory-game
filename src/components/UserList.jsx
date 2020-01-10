@@ -57,7 +57,7 @@ export default class UserList extends React.PureComponent {
     renderUser (username) {
         const active = (username === $game.currentUsername);
         return (
-            <a key={username} className={'user' + (active ? ' active' : '')} onClick={this.createConfirmBootUserFunction(username)}>
+            <a key={username} className={'user' + (active ? ' active' : '')} onClick={this.createConfirmBootUserFunction(username)} title={'Boot user'}>
                 <span className={'name'}><i className={'fa fa-user'} /> {username}</span>
                 {this.renderMatches(username)}
             </a>
