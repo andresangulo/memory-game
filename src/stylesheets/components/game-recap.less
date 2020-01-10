@@ -1,0 +1,21 @@
+@import '../colors';
+
+#game-recap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+
+  i {
+    margin-top: ~"calc(50% - 150px)";
+    font-size: 100px;
+    color: @green-theme;
+    text-shadow: black 0 0 2px;
+  }
+
+  span {
+    color: @red-theme;
+  }
+}

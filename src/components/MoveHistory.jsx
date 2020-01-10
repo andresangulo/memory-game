@@ -44,10 +44,10 @@ export default class MoveHistory extends React.Component {
         );
     }
 
-    renderMoves () {
+    renderMatches () {
         return (
-            <div className={'moves'}>
-                {$game.moves.map(this.renderMove)}
+            <div className={'matches'}>
+                {$game.matches.map(this.renderMove)}
             </div>
         )
     }
@@ -55,8 +55,8 @@ export default class MoveHistory extends React.Component {
     render () {
         return (
             <div id="move-history">
-                <h3>Moves</h3>
-                {this.renderMoves()}
+                <h3>Matches</h3>
+                {this.renderMatches()}
             </div>
         );
     }

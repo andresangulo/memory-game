@@ -4,7 +4,11 @@ import {computed, observable} from "mobx";
 class GameService {
 
     static POLL_INTERVAL = 50;
-    static STATE_DESCRIBING_FIELDS = ['cards', 'users', 'currentUsername', 'moves', 'choices'];
+    static STATE_DESCRIBING_FIELDS = ['cards', 'users', 'currentUsername', 'matches', 'choices'];
+
+    get TOTAL_MATCHES () {
+        return $api.TOTAL_MATCHES;
+    }
 
     get TOTAL_ROWS () {
         return $api.TOTAL_ROWS;
@@ -27,7 +31,7 @@ class GameService {
     cards = [];
 
     @observable
-    moves = [];
+    matches = [];
 
     @observable
     choices = [];

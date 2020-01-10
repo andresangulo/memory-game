@@ -16,10 +16,14 @@ class Api extends EventEmitter {
     choices = [];
     cards = [];
     users = [];
-    moves = [];
+    matches = [];
 
     get TOTAL_CHOICES () {
         return 2;
+    }
+
+    get TOTAL_MATCHES () {
+        return (this.TOTAL_ROWS * this.TOTAL_COLUMNS) / 2;
     }
 
     get TOTAL_COLUMNS () {
@@ -36,7 +40,7 @@ class Api extends EventEmitter {
 
     async restart () {
         const cards = [];
-        for (let index = 0; index < (this.TOTAL_COLUMNS * this.TOTAL_ROWS) / 2; index++) {
+        for (let index = 0; index < this.TOTAL_MATCHES; index++) {
             let cardIndex;
             do {
                 cardIndex = Math.floor(Math.random() * allCards.length);
@@ -55,7 +59,7 @@ class Api extends EventEmitter {
         this.cards = ArrayUtils.shuffle(ArrayUtils.shuffle(cards.map(card => Object.assign(card, {color: shuffledColors[card.group]}))));
         this.currentUsername = false;
         this.choices = [];
-        this.moves = [];
+        this.matches = [];
     }
 
     getCardIndex (row, column) {
@@ -84,9 +88,9 @@ class Api extends EventEmitter {
         this.cards.forEach(card => {
             if (card.resolvedBy === username) {
                 delete card.resolvedBy;
-                const moveIndex = this.moves.indexOf(card.group);
+                const moveIndex = this.matches.indexOf(card.group);
                 if (moveIndex) {
-                    this.moves.splice(moveIndex, 1);
+                    this.matches.splice(moveIndex, 1);
                 }
             }
         });
@@ -117,7 +121,7 @@ class Api extends EventEmitter {
                 });
 
                 const card = this.cards[this.getCardIndex(this.choices[0].row, this.choices[0].column)];
-                this.moves.push(card.group);
+                this.matches.push(card.group);
                 this.choices = [];
             }
         }
@@ -147,17 +151,17 @@ class Api extends EventEmitter {
             choices: this.choices,
             cards: this.cards,
             users: this.users,
-            moves: this.moves
+            matches: this.matches
         }
     }
 
     async revert (group) {
-        const index = this.moves.indexOf(group);
+        const index = this.matches.indexOf(group);
         if (index < 0) {
             return;
         }
 
-        this.moves.slice(index).forEach(group => {
+        this.matches.slice(index).forEach(group => {
             this.cards.forEach(card => {
                 if (card.group === group) {
                     delete card.resolvedBy;
@@ -165,7 +169,7 @@ class Api extends EventEmitter {
             });
         });
 
-        this.moves.splice(index);
+        this.matches.splice(index);
     }
 
     async end () {
