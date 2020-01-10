@@ -5,7 +5,7 @@ const ArrayUtils = require("../util/ArrayUtils");
 
 class Api {
 
-    static PAUSE_FOR_NEXT_USER = 400;
+    static PAUSE_FOR_NEXT_USER = 2000;
 
     waitingToAdvance = false;
     currentUsername = false;
@@ -60,12 +60,12 @@ class Api {
         }
 
         this.users.push(username);
-        if (!this.currentUsername) {
-            this.currentUsername = username;
-        }
-
         if (this.users.length === 1) {
             this.restart();
+        }
+
+        if (!this.currentUsername) {
+            this.currentUsername = username;
         }
     }
 
